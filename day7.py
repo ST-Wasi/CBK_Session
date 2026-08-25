@@ -10,13 +10,13 @@ OLLAMA_URL = "http://localhost:11434/api/chat"
 OLLAMA_MODEL = "llama3.2:1b" # Qwen/Qwen2.5-1.5B-Instruct
 
 # Models load ONCE, stay cached for the whole session
-@st.cache_resource
-def load_models():
-    embedder = SentenceTransformer("all-MiniLM-L6-v2")
-    reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-    return embedder, reranker
+# @st.cache_resource
+# def load_models():
+#     embedder = SentenceTransformer("all-MiniLM-L6-v2")
+#     reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+#     return embedder, reranker
 
-embedder, reranker = load_models()
+# embedder, reranker = load_models()
 
 def extract_text(file_path):
     if file_path.lower().endswith(".pdf"):
@@ -158,3 +158,23 @@ def rag_answer(question, top_k=3, verbose=True):
     return answer
 
 print("Functions ready.")
+
+st.title("RAG Assistant")
+
+# name = "Wasi"
+# number = 879876546
+
+# if "name" not in st.session_state:
+#     st.session_state.name = "Wasi"
+
+# st.write("Hello world") # <p> Hello world </p>
+
+if "index" not in st.session_state:
+    st.session_state.index = None
+    st.session_state.chunks = None
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+uploaded_file = st.file_uploader("Upload","document", type=["pdf","docx","txt"])
+
