@@ -178,3 +178,9 @@ if "messages" not in st.session_state:
 
 uploaded_file = st.file_uploader("Upload","document", type=["pdf","docx","txt"])
 
+if uploaded_file:
+    with open(uploaded_file, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+    st.session_state.index, st.session_state.chunks = load_document(uploaded_file.name)
+    st.write(f"'{uploaded_file.name}' Loaded")
+
