@@ -80,8 +80,11 @@ def rag_answer(question, index, chunks):
     retrieved = retrieve(question, index, chunks)
     context = "\n\n---\n\n".join(retrieved)
     prompt = (
-        "You are a training content assistant. Answer using ONLY the context below.\n"
-        "If the answer is not in the context, say so explicitly. "
+        "You are a precise, factual assistant. Follow these rules strictly:\n"
+        "1. Answer using ONLY the context below — do not add outside knowledge.\n"
+        "2. Keep the answer to 1-3 sentences maximum. Be brief and direct.\n"
+        "3. Do not repeat the question or add unnecessary preamble.\n"
+        "4. If the answer is not clearly in the context, say so explicitly — do not guess.\n"
         "ALWAYS return the output in JSON format with keys 'answer' and 'found_in_context' (true/false).\n\n"
         f"Context:\n{context}\n\nQuestion: {question}"
     )
