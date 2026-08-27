@@ -108,9 +108,18 @@ async def agent_answer(user_question: str) -> str:
 
     async with Client(mcp_server) as client:
         result = await client.call_tool(call["tool"], call["params"])
-    
-    
-    return str(result)
+
+    raw_result = result.content[0].text
+        
+    final_prompt = (
+            f"Question: {user_question}\n\n"
+            f"Raw information found: \n{raw_result}\n\n"
+            f"Write a clear, direct answer in brief using this information"
+            f"Do not mention the 'tool results or show the raw links - just answer naturally'"
+        )
+        
+    final_answer = safe_invoke(final_prompt)
+    return str(final_answer)
 
 def rag_answer(question, index, chunks):
     retrieved = retrieve(question, index, chunks)
