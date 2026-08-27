@@ -4,7 +4,7 @@ from sentence_transformers import SentenceTransformer, CrossEncoder
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from ddgs import DDGS
 from fastmcp import FastMCP, Client
-
+import asyncio
 
 mcp_server = FastMCP("RAG-Toolkit")
     
@@ -86,6 +86,32 @@ def web_search(query, max_results=3):
 def search_web(query: str) -> str:
     return web_search(query)
 
+TOOL_MENU = """
+- search_document(question: str) - use for questions about the uploaded document
+- search_web(query:str) - use for anything current or not in the document
+"""
+
+async def agent_answer(user_question: str) -> str:
+    routing_prompt = (
+        f"Available Tools: \n{TOOL_MENU}\n\n"
+        f"User question: {user_question}\n\n"
+        f'Reply ONLY with JSON: {{"tool": <name>, "params": {{...}}}}'
+    )
+    
+    
+    routing_reply = safe_invoke(routing_prompt)
+    
+    try:
+        call = json.loads(routing_reply[routing_reply.find("{"):routing_reply.rfind("}")+1])
+    except Exception:
+        return "Sorry I couldnt understand how to answer"
+
+    async with Client(mcp_server) as client:
+        result = await client.call_tool(call["tool"], call["params"])
+    
+    
+    return str(result)
+
 def rag_answer(question, index, chunks):
     retrieved = retrieve(question, index, chunks)
     context = "\n\n---\n\n".join(retrieved)
@@ -155,11 +181,8 @@ for msg in st.session_state.messages:
 if question := st.chat_input("Ask a question"):
     st.session_state.messages.append({"role": "user", "content": question})
     st.chat_message("user").write(question)
-
-    if st.session_state.index is None:
-        answer = "Please upload a document first."
-    else:
-        answer = rag_answer(question, st.session_state.index, st.session_state.chunks)
+    
+    answer = asyncio.run(agent_answer(question))
 
     st.session_state.messages.append({"role": "assistant", "content": answer})
     st.chat_message("assistant").write(answer)
