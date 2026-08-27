@@ -5,6 +5,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from ddgs import DDGS
 from fastmcp import FastMCP, Client
 
+
 mcp_server = FastMCP("RAG-Toolkit")
     
 CHUNK_SIZE = 500
