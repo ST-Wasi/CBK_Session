@@ -7,7 +7,7 @@ from ddgs import DDGS
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 80
 OLLAMA_URL = "http://localhost:11434/api/chat"
-OLLAMA_MODEL = "llama3.2:1b"
+OLLAMA_MODEL = "gemma2:9b"
 
 # ---------- Models load ONCE, stay cached for the whole session ----------
 @st.cache_resource
@@ -60,7 +60,7 @@ def safe_invoke(prompt_text, max_new_tokens=300):
             "messages": [{"role": "user", "content": prompt_text}],
             "stream": False,
             "options": {"num_predict": max_new_tokens},
-        }, timeout=60)
+        }, timeout=270)
         r.raise_for_status()
         return r.json()["message"]["content"]
     except Exception as e:
